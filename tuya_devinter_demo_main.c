@@ -45,8 +45,8 @@ STATIC CHAR_T demo_wakeup_pattern[32];
 //TODO: get keerpalive pattern from system flash after finishing binding process
 STATIC CHAR_T demo_keerpalive_pattern[32];
 
-//TODO: get gw ip from system. (obtained by DHCP client)
-UNW_IP_ADDR_T demo_gw_addr = 0xa0610fe;
+//TODO: get gateway ip from system,host byte order
+UNW_IP_ADDR_T demo_gw_addr = 0xa0610fe;//10.6.16.254
 
 //TODO: get mac address from system
 STATIC BYTE_T demo_mac_addr[6] = {0x00, 0x11, 0x09, 0x01, 0x02, 0x03};
@@ -247,9 +247,10 @@ void demo_main_task(void* not_used)
 int main(void)
 {
     printf("enter main\n");
+	/* Initialize log uart and at command service */
+    console_init();	
 	/* Initilaize the LwIP stack */
 	LwIP_Init();
-	
     xTaskCreate(demo_main_task, "demo_main_task", 8192, NULL,3, NULL);
     /*Enable Schedule, Start Kernel*/
 
@@ -257,5 +258,4 @@ int main(void)
     printf("schedule error\n");
     for(;;)
     ;
-
 }

@@ -289,6 +289,7 @@ int rtc_set_cb(unsigned long long utc_time)
 {
 	PR_DEBUG("utc_time:%llu from gateway\r\n",utc_time);
 	// TODO: Set UTC time from gateway into RTC
+	return 0;
 }
 													
 /*休眠回调
@@ -296,7 +297,7 @@ int rtc_set_cb(unsigned long long utc_time)
 * cmd=1时代表向系统询问是否可以休眠,如果可以休眠返回0,如果现在还不能休眠,则返回负值
 */
 int tuya_devinter_sleep_cb(int cmd,TY_USER_DEVINTER_SLEEP_REASON_E reason)
-{
+{ 
     //如果是强供电, 直接 return 0
 	int ret = 0;
 	if(cmd == 0) {
@@ -317,17 +318,16 @@ int tuya_devinter_sleep_cb(int cmd,TY_USER_DEVINTER_SLEEP_REASON_E reason)
 		keepalive_cbs.keepalive_event_cb = keepalive_event_cb;
 		keepalive_cbs.keepalive_rtc_cb = rtc_set_cb;
 		tuya_keepalive_init(&keepalive_cbs); 
-		
 		TY_USER_GW_CFG_T demo_gw_cfg;
 		BOOL_T demo_binded;
 		demo_read_config(&demo_binded, demo_gw_cfg.aeskey, demo_gw_cfg.bind_gw_uuid, demo_gw_cfg.wakeup_pattern, demo_gw_cfg.keepalive_pattern);
-		uint32_t gw_addr_u32 = PP_HTONL(demo_gw_addr);
-	    tuya_device_sleep_establish_keepalive_to_gw(inet_ntoa(gw_addr_u32), TUYA_IPCSET_KEEPALIVE_PORT, demo_gw_cfg.keepalive_pattern, demo_gw_cfg.aeskey, 2);
-	} else {
+		uint32_t gw_addr = PP_HTONL(demo_gw_addr);
+	    tuya_device_sleep_establish_keepalive_to_gw(inet_ntoa(gw_addr), TUYA_IPCSET_KEEPALIVE_PORT, demo_gw_cfg.keepalive_pattern, demo_gw_cfg.aeskey, 2);
+	} else {                                                                                                                                                     
 		/* TODO:
 		 * 根据当前系统状态判断是否可以休眠,
 		 * 如果能休眠 ret = 0
-		 * 如果不能休眠 ret = -1
+		 * 如果不能休眠(比如正在ota升级) ret = -1
 		 */
 	}
 	
